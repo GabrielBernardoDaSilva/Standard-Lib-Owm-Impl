@@ -1,18 +1,22 @@
+#![allow(dead_code)]
+
+use standard::linked_list_std::LinkedList;
 
 mod standard;
 
-use standard::vec_std::Vec;
-
-
 fn main() {
-    let mut v = Vec::<i32>::new();
-    v.push(5);
-    v.push(6);
-    v.push(7);
+    let mut list = LinkedList::<i32>::new();
+    list.push(5);
+   
+    list.push(6);
+    list.push(7);
+    list.push(8);
+    list.insert(0, 9);
+    list.remove_front();
+    
 
-    for value in v {
-        
-        println!("{}", value)
+    for i in list.into_iter() {
+        println!("it: {}", i);
     }
-
 }
+

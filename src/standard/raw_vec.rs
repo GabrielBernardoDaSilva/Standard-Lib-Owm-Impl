@@ -1,16 +1,15 @@
-use std::{marker::PhantomData};
 use std::alloc::{self, Layout};
+use std::marker::PhantomData;
 use std::mem;
 use std::ptr::{self, NonNull};
 
 pub struct RawVec<T> {
     pub ptr: NonNull<T>,
     pub cap: usize,
-    _marker: PhantomData<T>
+    _marker: PhantomData<T>,
 }
 
-
-pub struct RawValIter<T>{
+pub struct RawValIter<T> {
     start: *const T,
     end: *const T,
 }
@@ -18,7 +17,7 @@ pub struct RawValIter<T>{
 unsafe impl<T: Send> Send for RawVec<T> {}
 unsafe impl<T: Sync> Sync for RawVec<T> {}
 
-impl<T> RawVec<T>{
+impl<T> RawVec<T> {
     pub fn new() -> Self {
         assert!(mem::size_of::<T>() != 0, "We're not ready to handle ZSTs");
         RawVec {
@@ -70,25 +69,18 @@ impl<T> Drop for RawVec<T> {
     }
 }
 
-
 impl<T> RawValIter<T> {
-    pub unsafe fn new(slice: &[T]) ->Self {
-        RawValIter { 
-            start: slice.as_ptr(), 
+    pub unsafe fn new(slice: &[T]) -> Self {
+        RawValIter {
+            start: slice.as_ptr(),
             end: if slice.len() == 0 {
                 slice.as_ptr()
-            }else{
+            } else {
                 slice.as_ptr().add(slice.len())
-            }
+            },
         }
     }
 }
-
-
-
-
-
-
 
 impl<T> Iterator for RawValIter<T> {
     type Item = T;
@@ -111,14 +103,11 @@ impl<T> Iterator for RawValIter<T> {
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         let elem_size = mem::size_of::<T>();
-        let len = (self.end as usize - self.start as usize)
-                  / if elem_size == 0 { 1 } else { elem_size };
+        let len =
+            (self.end as usize - self.start as usize) / if elem_size == 0 { 1 } else { elem_size };
         (len, Some(len))
     }
 }
-
-
-
 
 impl<T> DoubleEndedIterator for RawValIter<T> {
     fn next_back(&mut self) -> Option<T> {
